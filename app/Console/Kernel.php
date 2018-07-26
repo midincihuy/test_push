@@ -4,6 +4,8 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Scheduler;
+use Schema;
 
 class Kernel extends ConsoleKernel
 {
@@ -24,8 +26,22 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        // $schedule->command('sync:email')
+        // ->dailyAt('04:00');
+
+        // $schedule->command('customer:request')
+        // ->dailyAt('05:00');
+
+        // $schedule->command('check:tunnel')
+        // ->everyMinute();
+
+        if(Schema::hasTable('schedulers')){
+            $scheduler = Scheduler::all();
+
+            foreach ($scheduler as $sch) {
+                $schedule->command($sch->command)->cron($sch->cron_expression);
+            }
+        }
     }
 
     /**
