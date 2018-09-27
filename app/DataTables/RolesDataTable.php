@@ -22,7 +22,7 @@ class RolesDataTable extends DataTable
                 foreach ($data as $key => $value) {
                   $x[] = $value;
                 }
-                return implode(',',$x);
+                return implode(', ',$x);
             })
             ->addColumn('action', function ($role) {
                 return '<a href="roles/'.$role->id.'/edit" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-edit"></i> Edit</a>';
@@ -83,9 +83,30 @@ class RolesDataTable extends DataTable
     protected function getBuilderParameters()
     {
       return [
-        'dom'          => 'Bfrtip',
+        'dom'          => 'Brtip',
         'buttons'      => ['create', 'reset', 'reload'],
         'pageLength'   => 10,
+        'scrollX'       => 'true',
+        'initComplete' => 'function () {
+            $("#dataTableBuilder").attr("style","margin-left:0px;width:auto");
+            $("#dataTableBuilder_paginate").attr("style","float:left;");
+        }',
+        'rowCallback' => 'function () {
+            var r = $("#dataTableBuilder_wrapper tfoot tr");
+
+            $("#dataTableBuilder_wrapper thead").append(r);
+            this.api().columns().every(function () {
+                var column = this;
+                var input = document.createElement("input");
+                $(input).attr("style","width:100px");
+                $(input).appendTo($(column.footer()).empty())
+                .on("change", function () {
+                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
+
+                    column.search(val ? val : "", true, false).draw();
+                });
+            });
+        }',
       ];
     }
 }
